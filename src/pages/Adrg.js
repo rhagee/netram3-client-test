@@ -25,6 +25,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import Stack from '@mui/material/Stack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import LoginIcon from '@mui/icons-material/Login';
@@ -129,54 +131,104 @@ const UserList = () => {
 const AdrgSide = () => {
 
     const [month, setMonth] = useState(1);
-
+    const [openDays, setOpenDays] = useState(true);
     const handleChange = (event) => {
         setMonth(event.target.value);
     };
+
+
     return (
         <Grid item md={12} lg={9} className="adrg-side">
             <div className="user-data">
                 <span>Matricola Name Surname</span>
             </div>
             <Grid item container className="adrg-box">
-                <Grid item xs={12} md={4} className="day-side">
-                    <div classname="month-select-day-side">
-                        <FormControl fullWidth>
-                            <InputLabel id="demo-simple-select-label">Mese</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={month}
-                                label="Mese"
-                                onChange={handleChange}
-                            >
-                                <MenuItem value={1}>Gennaio</MenuItem>
-                                <MenuItem value={2}>Febbraio</MenuItem>
-                                <MenuItem value={3}>Marzo</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </div>
-                    <div className="day-select-day-side">
-                        <DayList />
+                <Grid item xs={12} md={openDays ? 12 : 4} style={openDays ? { transition: "all .5s ease-in-out" } : {}}>
+                    <div className={openDays ? "day-side" : "day-side-short"}>
+                        <Stack direction="row" spacing={2} style={{ width: "100%" }}>
+                            <div style={{ width: "100%" }}>
+                                <div classname="month-select-day-side">
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Mese</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={month}
+                                            label="Mese"
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value={1}>Gennaio</MenuItem>
+                                            <MenuItem value={2}>Febbraio</MenuItem>
+                                            <MenuItem value={3}>Marzo</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <div className="day-select-day-side">
+                                    <DayList openDays={openDays} setOpenDays={setOpenDays} />
+                                </div>
+                            </div>
+                            {!openDays &&
+                                <div>
+                                    <Divider orientation="vertical" >
+                                        <IconButton onClick={() => { setOpenDays(true) }} style={{ backgroundColor: "#ebebeb", color: "#303030", padding: "4px" }}><KeyboardArrowRightIcon /></IconButton>
+                                    </Divider>
+                                </div>
+                            }
+                        </Stack>
                     </div>
                 </Grid>
-                <Grid item xs={12} md={8} className="adrg-data">
-                    <AdrgData />
+
+                <Grid item xs={12} md={8}>
+                    <div className={openDays ? "adrg-data" : "adrg-data-open"}>
+                        <AdrgData />
+                    </div>
                 </Grid>
-            </Grid>
+
+
+            </Grid >
         </Grid >
     )
 }
 
-const DayList = () => {
+const DayList = ({ openDays, setOpenDays }) => {
+
     return (
         <List>
-            {timbri.map((obj) => {
+            {[...Array(30)].map((obj, index) => {
                 return (
                     <ListItem style={{ borderBottom: "1px solid rgba(0,0,0,0.2)" }} disablePadding>
-                        <ListItemButton>
-                            <div>
-                                <span style={{ fontWeight: "bold", color: "gray" }}>{obj.day}</span>
+                        <ListItemButton onClick={() => { setOpenDays(false) }}>
+                            <Grid container style={{ width: "100%" }}>
+
+                                <Grid item xs={12} md={openDays ? 2 : 12} style={{ width: "100%", display: "block", textAlign: "center" }}>
+                                    <span style={{ fontWeight: "bold", color: "gray", fontSize: "18px" }}>
+                                        <div style={{ backgroundColor: "#043782", width: "100%", maxWidth: "100px", minWidth: "70px", height: "25px", border: "1px solid rgba(0,0,0,0.2)", borderTopLeftRadius: "10px", borderTopRightRadius: "10px", color: "white", fontSize: "12px", lineHeight: "25px", textAlign: "center", verticalAlign: "middle", alignItems: "center" }}>Day</div>
+
+                                        <div style={{ border: "1px solid rgba(0,0,0,0.2", boxShadow: "0px 0px 2px rgba(0,0,0,0.2)", width: "100%", fontWeight: "bold", fontSize: "10px", borderBottomLeftRadius: "10px", borderBottomRightRadius: "10px", backgroundColor: "white", color: "black", textTransform: "uppercase", textAlign: "center", maxWidth: "100px", minWidth: "70px", minHeight: "50px", lineHeight: "50px", verticalAlign: "middle" }}>
+                                            <span style={{ fontWeight: "bold", fontSize: "18px", color: "black" }}>{index + 1}</span></div></span>
+                                </Grid>
+
+                                {
+                                    openDays ?
+                                        <Grid item xs={12} md={10} style={{ textAlign: "center", width: "100%", display: "block", fontWeight: "bold", padding: "2px 20px" }}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={4} style={{ width: "100%" }} >
+                                                    <div style={{ padding: "10px 15px", width: "100%", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Valore <br />del Giorno </p>
+                                                        <span style={{ fontWeight: "bold", fontSize: "16px", color: "#4a4a4a" }}>8.00</span></div></Grid>
+                                                <Grid item xs={4} style={{ width: "100%" }} >
+                                                    <div style={{ padding: "10px 15px", width: "100%", margin: "0 auto", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Ore <br /> Lavorate </p>
+                                                        <span style={{ fontWeight: "bold", fontSize: "16px", color: "#4a4a4a" }}>8.00</span></div></Grid>
+                                                <Grid item xs={4} style={{ width: "100%" }} >
+                                                    <div style={{ padding: "10px 15px", width: "100%", margin: "0 auto", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Ore <br /> Ordinarie</p>
+                                                        <span style={{ fontWeight: "bold", fontSize: "16px", color: "#4a4a4a" }}>8.00</span></div></Grid>
+                                            </Grid>
+                                        </Grid> : ""}
+                            </Grid>
+                            <div style={{ width: "10%" }}>
+                                {
+                                    openDays ? <div style={{ width: "100% !important" }}> <span style={{ padding: "5px 0px", display: "block", color: "#0da61a", width: "100% !important", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", textTransform: "uppercase", textAlign: "center" }}>Giorno Ok</span> <div style={{ margin: "0 auto", width: "20px", height: "20px", borderRadius: "100%", background: "radial-gradient(circle at 5px 5px, #56f064, #0da61a)" }}></div></div> : <div style={{ width: "20px", height: "20px", borderRadius: "100%", background: "radial-gradient(circle at 5px 5px, #56f064, #0da61a)" }}></div>
+                                }
+
                             </div>
                         </ListItemButton>
                     </ListItem>
@@ -192,31 +244,32 @@ const AdrgData = () => {
 
     return (
         <div style={{ width: "90%", margin: "0 auto" }}>
+            <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>1 GENNAIO 2023</h2>
             <Grid container spacing={2}>
                 <Grid item xs={12} style={{ width: "100%", minWidth: "300px" }} >
                     <div style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", padding: "10px 15px", width: "100%", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", backgroundColor: "#3d046e", color: "white", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Valore del Giorno </p>
                         <span style={{ fontWeight: "bold", fontSize: "28px", color: "#9ba8eb" }}>8.00</span></div></Grid>
-                <Grid item md={12} lg={6} style={{ width: "100%", minWidth: "300px" }} >
+                <Grid item md={12} lg={6} style={{ width: "100%" }} >
                     <div style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", padding: "10px 15px", width: "100%", margin: "0 auto", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", backgroundColor: "#3d046e", color: "white", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Ore <br /> Lavorate </p>
                         <span style={{ fontWeight: "bold", fontSize: "28px", color: "#ffffff" }}>8.00</span></div></Grid>
-                <Grid item md={12} lg={6} style={{ width: "100%", minWidth: "300px" }} >
+                <Grid item md={12} lg={6} style={{ width: "100%" }} >
                     <div style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", padding: "10px 15px", width: "100%", margin: "0 auto", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", backgroundColor: "#3d046e", color: "white", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto" }}>Ore <br /> Ordinarie</p>
                         <span style={{ fontWeight: "bold", fontSize: "28px", color: "#ffffff" }}>8.00</span></div></Grid>
             </Grid>
             <div className={showStandard ? "adrg-today-time-show" : "adrg-today-time"}>
                 <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>Orario</h2>
-                <Timbratura color="#045754" inside="8.30" outside="12.30" />
-                <Timbratura color="#045754" inside="13.30" outside="17.30" />
+                <Timbratura inside="8.30" outside="12.30" />
+                <Timbratura inside="13.30" outside="17.30" />
             </div>
-            <Divider style={{ marginTop: "10px", marginBottom: "10px" }}><IconButton onClick={() => { setShowStandard(curr => !curr) }} style={{ backgroundColor: "#406ac9", color: "white" }}>{showStandard ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Divider>
+            <Divider style={{ marginTop: "10px", marginBottom: "10px" }}><IconButton onClick={() => { setShowStandard(curr => !curr) }} style={{ backgroundColor: "#406ac9", color: "white", padding: "4px" }}>{showStandard ? <ExpandLessIcon /> : <ExpandMoreIcon />}</IconButton></Divider>
 
 
 
 
             <div className="adrg-timbrature">
                 <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>Timbrature</h2>
-                <Timbratura inside="8.30" outside="12.40" />
-                <Timbratura inside="13.40" outside="17.30" />
+                <Timbratura color="#01205e" inside="8.30" outside="12.40" />
+                <Timbratura color="#01205e" inside="13.40" outside="17.30" />
             </div>
         </div >
     )
