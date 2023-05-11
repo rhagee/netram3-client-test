@@ -54,18 +54,20 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+
 {/* UTILIZZABILE FINO A 1024 Pixel Width */ }
 
 function renderRow(props) {
     const { data, index, style } = props;
-    const { status, list } = data;
+    const { status, list, onClick } = data;
     const obj = list[index];
     return (
         <ListItem style={style} key={index} disablePadding>
-            <ListItemButton style={{ height: "100%" }}>
+            <ListItemButton onClick={() => { onClick(obj) }} style={{ height: "100%" }}>
                 <User name={obj.name} surname={obj.surname} matricola={obj.matricola} wide={status} />
             </ListItemButton>
-        </ListItem>
+        </ListItem >
     );
 }
 
@@ -103,19 +105,28 @@ const User = ({ name, surname, matricola }) => {
             */
 }
 const Adrg = () => {
+    const [user, setUser] = useState(undefined);
+
+    const onUserSelected = (obj) => {
+        setUser(obj);
+    }
+
+    const ResetUser = () => {
+        setUser(undefined);
+    }
 
     return (
         <div className="adrg-container">
             <Grid container spacing={2}>
-                <UserSide />
-                <AdrgSide />
+                <UserSide onUserSelected={onUserSelected} />
+                <AdrgSide user={user} ResetUser={ResetUser} />
             </Grid>
         </div>
     );
 };
 
 
-const UserSide = () => {
+const UserSide = ({ onUserSelected }) => {
     return (
         <Grid item md={12} lg={3} className="user-side">
             <div className="top-user-side">
@@ -129,13 +140,14 @@ const UserSide = () => {
                 </Grid>
             </div>
             <div className='list-user-side'>
-                <UserList />
+                <UserList onUserSelected={onUserSelected} />
             </div>
         </Grid>
     )
 }
 
-const UserList = () => {
+const UserList = ({ onUserSelected }) => {
+
     return (
         <div>
             <Grid container style={{ position: "relative", width: "100%", textAlign: "left", padding: "20px" }}>
@@ -154,7 +166,7 @@ const UserList = () => {
                 itemSize={60}
                 itemCount={users.length}
                 overscanCount={5}
-                itemData={{ list: users }}
+                itemData={{ onClick: onUserSelected, list: users }}
             >
                 {renderRow}
             </FixedSizeList>
@@ -164,81 +176,130 @@ const UserList = () => {
 }
 
 
-const AdrgSide = () => {
+const AdrgSide = ({ user, ResetUser }) => {
 
-    const [month, setMonth] = useState(1);
+    const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno"];
+    const year = 2023;
+    const [month, setMonth] = useState(0);
     const [openDays, setOpenDays] = useState(true);
+    const [selected, setSelected] = useState(-1);
+
     const handleChange = (event) => {
         setMonth(event.target.value);
     };
 
+    useEffect(() => {
+        setOpenDays(true);
+    }, [user])
 
     return (
         <Grid item md={12} lg={9} className="adrg-side">
-            <div className="user-data">
-                <span>Matricola Name Surname</span>
-            </div>
-            <Grid item container className="adrg-box">
-                <Grid item xs={12} md={openDays ? 12 : 4} style={openDays ? { transition: "all .5s ease-in-out" } : {}}>
-                    <div className={openDays ? "day-side" : "day-side-short"}>
-                        <Stack direction="row" spacing={2} style={{ width: "100%" }}>
-                            <div style={{ width: "100%" }}>
-                                <div className="month-select-day-side">
-                                    <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Mese</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            value={month}
-                                            label="Mese"
-                                            onChange={handleChange}
-                                        >
-                                            <MenuItem value={1}>Gennaio</MenuItem>
-                                            <MenuItem value={2}>Febbraio</MenuItem>
-                                            <MenuItem value={3}>Marzo</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </div>
-                                <div className="day-select-day-side">
-                                    <DayList openDays={openDays} setOpenDays={setOpenDays} />
-                                </div>
+            {
+                user &&
+                <div style={{ position: "relative" }}>
+                    < div className="user-data" >
+                        <span> {user.matricola} <span style={{ color: "rgba(0,0,0,0.8)" }}> {user.name} {user.surname}</span> </span>
+                    </div >
+                    <div style={{ position: "absolute", left: "0px", top: "30px" }}><IconButton onClick={() => { ResetUser() }}><ArrowCircleLeftIcon style={{ width: "40px", height: "40px", color: "rgb(61, 4, 110)" }} /></IconButton></div>
+                    <Grid item container className="adrg-box">
+                        <Grid item xs={12} md={openDays ? 12 : 4} style={openDays ? { transition: "all .5s ease-in-out" } : {}}>
+                            <div className={openDays ? "day-side" : "day-side-short"}>
+                                <Stack direction="row" spacing={2} style={{ width: "100%" }}>
+                                    <div style={{ width: "100%" }}>
+                                        <div className="month-select-day-side">
+                                            <FormControl fullWidth>
+                                                <InputLabel id="demo-simple-select-label">Mese</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={month}
+                                                    label="Mese"
+                                                    onChange={handleChange}
+                                                >
+                                                    {months.map((m, index) => {
+                                                        return (
+                                                            <MenuItem value={index} key={index}>{m}</MenuItem>
+                                                        )
+                                                    })}
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className="day-select-day-side">
+                                            <DayList month={month} year={year} openDays={openDays} setOpenDays={setOpenDays} selected={selected} setSelected={setSelected} />
+                                        </div>
+                                    </div>
+                                    {!openDays &&
+                                        <div>
+                                            <Divider orientation="vertical" style={{ marginLeft: "0px !important", height: "100%" }} >
+                                                <IconButton onClick={() => { setOpenDays(true) }} style={{ backgroundColor: "#ebebeb", color: "#303030", padding: "4px" }}><KeyboardArrowRightIcon /></IconButton>
+                                            </Divider>
+                                        </div>
+                                    }
+                                </Stack>
                             </div>
-                            {!openDays &&
-                                <div>
-                                    <Divider orientation="vertical" style={{ marginLeft: "0px !important", height: "100%" }} >
-                                        <IconButton onClick={() => { setOpenDays(true) }} style={{ backgroundColor: "#ebebeb", color: "#303030", padding: "4px" }}><KeyboardArrowRightIcon /></IconButton>
-                                    </Divider>
-                                </div>
-                            }
-                        </Stack>
-                    </div>
-                </Grid>
+                        </Grid>
 
-                <Grid item xs={12} md={8}>
-                    <div className={openDays ? "adrg-data" : "adrg-data-open"}>
-                        <AdrgData />
-                    </div>
-                </Grid>
+                        <Grid item xs={12} md={8}>
+                            <div className={openDays ? "adrg-data" : "adrg-data-open"}>
+                                <AdrgData selected={selected} day={selected + 1} month={months[month]} year={year} />
+                            </div>
+                        </Grid>
 
 
-            </Grid >
-        </Grid >
+                    </Grid >
+                </div>
+            }
+        </Grid>
+
     )
 }
 
-const DayList = ({ openDays, setOpenDays }) => {
+const DayList = ({ openDays, setOpenDays, selected, setSelected, month, year }) => {
+
+
+    useEffect(() => {
+        if (openDays) {
+            setSelected(-1);
+        }
+    }, [openDays]);
 
     return (
         <List style={{ padding: "10px" }}>
             {[...Array(30)].map((obj, index) => {
+                let day = new Date(index, month, year);
+                day = day.getDay();
+                switch (day) {
+                    case 0:
+                        day = "Domenica";
+                        break;
+                    case 1:
+                        day = "Lunedì";
+                        break;
+                    case 2:
+                        day = "Martedì";
+                        break;
+                    case 3:
+                        day = "Mercoledì";
+                        break;
+                    case 4:
+                        day = "Giovedì";
+                        break;
+                    case 5:
+                        day = "Venerdì";
+                        break;
+                    case 6:
+                        day = "Sabato";
+                        break;
+                    default: break;
+                }
                 return (
-                    <ListItem key={index} style={{ borderBottom: "1px solid rgba(0,0,0,0.2)" }} disablePadding>
-                        <ListItemButton onClick={() => { setOpenDays(false) }}>
+                    <ListItem key={index} style={{ borderBottom: "1px solid rgba(0,0,0,0.2)", backgroundColor: index === selected ? "#1645ab" : "white" }} disablePadding >
+                        <ListItemButton onClick={() => { setOpenDays(false); setSelected(index); }}>
                             <Grid container style={{ width: "100%" }}>
 
                                 <Grid item xs={12} md={openDays ? 2 : 10} style={{ width: "100%", display: "block", textAlign: "center" }}>
                                     <span style={{ fontWeight: "bold", color: "gray", fontSize: "18px" }}>
-                                        <div style={{ margin: "0 auto", backgroundColor: "#043782", width: "100%", maxWidth: "100px", height: "25px", border: "1px solid rgba(0,0,0,0.2)", borderTopLeftRadius: "10px", borderTopRightRadius: "10px", color: "white", fontSize: "12px", lineHeight: "25px", textAlign: "center", verticalAlign: "middle", alignItems: "center" }}>Day</div>
+                                        <div style={{ margin: "0 auto", backgroundColor: "#043782", width: "100%", maxWidth: "100px", height: "25px", border: "1px solid rgba(0,0,0,0.2)", borderTopLeftRadius: "10px", borderTopRightRadius: "10px", color: "white", fontSize: "12px", lineHeight: "25px", textAlign: "center", verticalAlign: "middle", alignItems: "center" }}>{day}</div>
 
                                         <div style={{ margin: "0 auto", border: "1px solid rgba(0,0,0,0.2", boxShadow: "0px 0px 2px rgba(0,0,0,0.2)", width: "100%", maxWidth: "100px", fontWeight: "bold", fontSize: "10px", borderBottomLeftRadius: "10px", borderBottomRightRadius: "10px", backgroundColor: "white", color: "black", textTransform: "uppercase", textAlign: "center", minHeight: "50px", lineHeight: "50px", verticalAlign: "middle" }}>
                                             <span style={{ fontWeight: "bold", fontSize: "18px", color: "black" }}>{index + 1}</span></div></span>
@@ -271,11 +332,11 @@ const DayList = ({ openDays, setOpenDays }) => {
                     </ListItem>
                 )
             })}
-        </List>
+        </List >
     )
 }
 
-const AdrgData = () => {
+const AdrgData = ({ selected, day, month, year }) => {
 
     const [showStandard, setShowStandard] = useState(false);
     const [showHCode, setShowHCode] = useState(false);
@@ -290,6 +351,16 @@ const AdrgData = () => {
     const [causalObj, setCausalObj] = useState({});
     const [totalObj, setTotalObj] = useState({});
 
+    useEffect(() => {
+        setShowStandard(false);
+        setEditObj({});
+        setOpen(false);
+        setOpenInfo(false);
+        setOpenTotal(false);
+        setOpenCausal(false);
+        setCausalObj({});
+        setTotalObj({});
+    }, [selected])
     return (
         <div style={{ width: "90%", margin: "0 auto", position: "relative" }}>
             <div style={{ position: "absolute", left: "0", top: "-6px" }}>
@@ -300,7 +371,7 @@ const AdrgData = () => {
                 <IconButton style={{ backgroundColor: "#3d046e", color: "white", padding: "7px", margin: "0px 5px" }} onClick={() => { setOpenTotal(true) }}><ListAltIcon /></IconButton>
                 {/*Totali*/}
             </div>
-            <h2 style={{ fontSize: "18px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>1 GENNAIO 2023</h2>
+            <h2 style={{ fontSize: "18px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>{day} {month} {year}</h2>
             <Divider style={{ margin: "10px 0px" }}></Divider>
             <div style={{ position: "absolute", right: "0", top: "50px" }}><IconButton style={{ color: "#212121" }} onClick={() => { setOpenInfo(true) }}><EditIcon /></IconButton></div>
             <div style={{ position: "absolute", left: "0", top: "50px" }}></div>
@@ -353,7 +424,7 @@ const AdrgData = () => {
                 <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>Timbrature</h2>
 
                 <div style={{ position: "absolute", right: "0", top: "-8px" }}><IconButton style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", color: "white", backgroundColor: "rgb(64, 106, 201)", padding: "5px" }} onClick={() => { setOpen(true) }}><AddIcon /></IconButton></div>
-                <div style={{ position: "absolute", left: "0", top: "-8px" }}><IconButton style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", color: "rgb(1, 32, 94)", border: "1px solid rgb(1, 32, 94)", padding: "5px" }} onClick={() => { setOpenCausal(true) }}>  <Badge badgeContent={2} color="error"><PlaylistAddCheckIcon /></Badge></IconButton></div>
+                <div style={{ position: "absolute", left: "0", top: "-8px" }}><IconButton style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", color: "rgb(1, 32, 94)", border: "1px solid rgb(1, 32, 94)", padding: "5px" }} onClick={() => { setOpenCausal(true) }}>  <Badge badgeContent={2} color="primary"><PlaylistAddCheckIcon /></Badge></IconButton></div>
 
                 <Timbratura onClick={() => { setEditObj({ inside: "8.30", outside: "12.40" }); setOpen(true); }} style={{ cursor: "pointer" }} color="#01205e" inside="8.30" outside="12.40" />
                 <Timbratura onClick={() => { setEditObj({ inside: "13.40", outside: "17.40" }); setOpen(true); }} style={{ cursor: "pointer" }} color="#01205e" inside="13.40" outside="17.30" />
@@ -503,12 +574,12 @@ const TotalDialog = (props) => {
                 {
                     totals.length > 0 ? totals.map((obj, index) => {
                         return (
-                            <div>
-                                <Grid container key={index} style={{ minWidth: "350px", borderRadius: "10px", margin: "10px 0px", padding: "5px", color: "black" }}>
-                                    <Grid xs={6}>
+                            <div key={index}>
+                                <Grid container style={{ minWidth: "350px", borderRadius: "10px", margin: "10px 0px", padding: "5px", color: "black" }}>
+                                    <Grid item xs={6}>
                                         <span style={{ fontWeight: "bold", }}>{obj.label} </span>
                                     </Grid>
-                                    <Grid xs={6}>
+                                    <Grid item xs={6}>
                                         <span style={{ fontWeight: "bold", color: "#073178", float: "right" }}>{obj.value}</span>
                                     </Grid>
 
