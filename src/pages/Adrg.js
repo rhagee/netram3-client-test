@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "./adrg.css";
 import IconButton from '@mui/material/IconButton';
 import TextField from "@mui/material/TextField";
@@ -44,6 +44,17 @@ import Slide from '@mui/material/Slide';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import EditIcon from '@mui/icons-material/Edit';
+import Badge from '@mui/material/Badge';
+
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+
+import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
+
+{/* UTILIZZABILE FINO A 1024 Pixel Width */ }
 
 function renderRow(props) {
     const { data, index, style } = props;
@@ -274,15 +285,28 @@ const AdrgData = () => {
     const [editInfoObj, setEditInfoObj] = useState({});
     const [open, setOpen] = useState(false);
     const [openInfo, setOpenInfo] = useState(false);
+    const [openTotal, setOpenTotal] = useState(false);
+    const [openCausal, setOpenCausal] = useState(false);
+    const [causalObj, setCausalObj] = useState({});
+    const [totalObj, setTotalObj] = useState({});
 
     return (
         <div style={{ width: "90%", margin: "0 auto", position: "relative" }}>
+            <div style={{ position: "absolute", left: "0", top: "-6px" }}>
+                <IconButton style={{ backgroundColor: "#010b7a", color: "white", padding: "7px", margin: "0px 5px" }}><CalculateIcon /></IconButton> {/*Calcola*/}
+                <IconButton style={{ backgroundColor: "#c20817", color: "white", padding: "7px", margin: "0px 5px" }}><HighlightOffIcon /></IconButton> {/*Pulisci*/}
+            </div>
+            <div style={{ position: "absolute", right: "0", top: "-6px" }}>
+                <IconButton style={{ backgroundColor: "#3d046e", color: "white", padding: "7px", margin: "0px 5px" }} onClick={() => { setOpenTotal(true) }}><ListAltIcon /></IconButton>
+                {/*Totali*/}
+            </div>
             <h2 style={{ fontSize: "18px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>1 GENNAIO 2023</h2>
             <Divider style={{ margin: "10px 0px" }}></Divider>
             <div style={{ position: "absolute", right: "0", top: "50px" }}><IconButton style={{ color: "#212121" }} onClick={() => { setOpenInfo(true) }}><EditIcon /></IconButton></div>
+            <div style={{ position: "absolute", left: "0", top: "50px" }}></div>
             <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)", marginBottom: "20px" }}>Informazioni</h2>
             <Grid container spacing={2} style={{ marginBottom: "20px" }}>
-                <Grid item xs={12} style={{ width: "100%" }} >
+                <Grid item xs={12} style={{ width: "100F%" }} >
                     <div style={{ boxShadow: "0px 0px 6px rgba(0,0,0,0.2)", padding: "10px 15px", width: "100%", fontWeight: "bold", fontSize: "10px", borderRadius: "15px", textTransform: "uppercase", textAlign: "center" }}><p style={{ width: "60%", textAlign: "center", margin: "0 auto", color: "#4f4f4f" }}>BADGE </p>
                         <span style={{ fontWeight: "bold", fontSize: "18px", color: "#4c0387" }}>1510010807</span></div></Grid>
                 <Grid item md={12} lg={6} style={{ width: "100%" }} >
@@ -328,13 +352,17 @@ const AdrgData = () => {
             <div className="adrg-timbrature">
                 <h2 style={{ fontSize: "16px", textTransform: "uppercase", color: "rgba(0,0,0,0.7)" }}>Timbrature</h2>
 
+                <div style={{ position: "absolute", right: "0", top: "-8px" }}><IconButton style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", color: "white", backgroundColor: "rgb(64, 106, 201)", padding: "5px" }} onClick={() => { setOpen(true) }}><AddIcon /></IconButton></div>
+                <div style={{ position: "absolute", left: "0", top: "-8px" }}><IconButton style={{ boxShadow: "0px 0px 10px rgba(0,0,0,0.2)", color: "rgb(1, 32, 94)", border: "1px solid rgb(1, 32, 94)", padding: "5px" }} onClick={() => { setOpenCausal(true) }}>  <Badge badgeContent={2} color="error"><PlaylistAddCheckIcon /></Badge></IconButton></div>
+
                 <Timbratura onClick={() => { setEditObj({ inside: "8.30", outside: "12.40" }); setOpen(true); }} style={{ cursor: "pointer" }} color="#01205e" inside="8.30" outside="12.40" />
-
                 <Timbratura onClick={() => { setEditObj({ inside: "13.40", outside: "17.40" }); setOpen(true); }} style={{ cursor: "pointer" }} color="#01205e" inside="13.40" outside="17.30" />
-
+                <Timbratura onClick={() => { setEditObj({ inside: "13.40", outside: "17.40" }); setOpen(true); }} style={{ cursor: "pointer" }} color="#01205e" inside="13.40" outside="17.30" />
             </div>
             <InfoDialog open={openInfo} handleClose={() => { setOpenInfo(false) }} obj={editInfoObj} />
-            <TimbroDialog open={open} handleClose={() => { setOpen(false) }} obj={editObj} />
+            <TimbroDialog open={open} handleClose={() => { setEditObj(undefined); setOpen(false); }} obj={editObj} />
+            <TotalDialog open={openTotal} handleClose={() => { setOpenTotal(false) }} obj={totalObj} />
+            <CausalDialog open={openCausal} handleClose={() => { setOpenCausal(false) }} obj={causalObj} />
         </div >
     )
 }
@@ -347,11 +375,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const InfoDialog = (props) => {
 
     const { obj, handleClose, handleSave, open } = props;
-    console.log(obj);
+
     return (
         <Dialog
             open={open}
-            PaperComponent={PaperComponent}
             TransitionComponent={Transition}
             keepMounted
             onClose={handleClose}
@@ -360,10 +387,63 @@ const InfoDialog = (props) => {
         >
             <DialogTitle style={{ cursor: 'move' }}>Modifica Informazioni</DialogTitle>
             <DialogContent>
+                <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>/// Eccezioni ///</Divider>
+                <Grid container>
+                    <Grid item xs={12} md={6} style={{ padding: "5px" }}>
+                        <TextField fullWidth label="Casi Speciali" value={obj.inside ? obj.inside : ""} />
+                    </Grid>
+                    <Grid item xs={12} md={6} style={{ padding: "5px" }}>
+                        <TextField fullWidth label="Festività"></TextField>
+                    </Grid>
+                </Grid>
+                <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>/// Orario ///</Divider>
+                <Grid container>
+                    <Grid item xs={12} md={6} style={{ padding: "5px" }}>
+                        <TextField fullWidth label="Ore Lavorate" value={obj.outside ? obj.outside : ""} />
+                    </Grid>
+                    <Grid item xs={12} md={6} style={{ padding: "5px" }}>
+                        <TextField fullWidth label="Ore Ordinarie"></TextField>
+                    </Grid>
+                    <Grid item xs={12} style={{ padding: "5px" }}>
+                        <TextField fullWidth label="Orario"></TextField>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <h2>Preview Orario</h2>
+                        <Timbratura style={{ backgroundColor: "#242424", color: "white" }} inside="8.30" outside="12.30" />
+                        <Timbratura style={{ backgroundColor: "#242424", color: "white" }} inside="13.30" outside="17.30" />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Salva</Button>
+                <Button onClick={handleClose}>Annulla</Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
+
+const TimbroDialog = (props) => {
+
+    const { obj, handleClose, handleSave, open } = props;
+    const [curr, setCurr] = useState({ ...obj });
+
+    useEffect(() => {
+        setCurr({ ...obj });
+    }, [obj])
+    return (
+        <Dialog
+            open={open}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={handleClose}
+            aria-describedby="alert-dialog-slide-description"
+        >
+            <DialogTitle>{obj === undefined ? "Aggiungi Timbro" : "Modifica Timbro"}</DialogTitle>
+            <DialogContent>
                 <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>/// Entrata ///</Divider>
                 <Grid container>
                     <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Entrata" defaultValue="" value={obj.inside ? obj.inside : ""} />
+                        <TextField label="Entrata" value={curr.inside ? curr.inside : ""} />
                     </Grid>
                     <Grid item xs={12} md={4} style={{ padding: "5px" }}>
                         <TextField label="Causale"></TextField>
@@ -375,7 +455,7 @@ const InfoDialog = (props) => {
                 <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>\\\ Uscita \\\</Divider>
                 <Grid container>
                     <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Uscita" defaultValue="" value={obj.outside ? obj.outside : ""} />
+                        <TextField label="Uscita" value={curr.outside ? curr.outside : ""} />
                     </Grid>
                     <Grid item xs={12} md={4} style={{ padding: "5px" }}>
                         <TextField label="Causale"></TextField>
@@ -393,10 +473,22 @@ const InfoDialog = (props) => {
     )
 }
 
-const TimbroDialog = (props) => {
+
+const TotalDialog = (props) => {
 
     const { obj, handleClose, handleSave, open } = props;
-    console.log(obj);
+    const [totals, setTotals] = useState([
+        { label: "Ferie ap - NO", value: " 10 giorni" },
+        { label: "Rol ap - NO", value: "22 ore" },
+        { label: "Ex-Fest AP - NO", value: "55 ore" },
+        { label: "Ferie - 54", value: "142,30 ore" },
+        { label: "Rol - 55", value: "80,30 ore" },
+        { label: "Ex-Fest - 56", value: "27 ore" },
+        { label: "CompAut.+20 -21", value: "12 giorni" },
+        { label: "Ore +/-  +5 -6", value: "0 ore" },
+        { label: "Ore Oltre +4", value: "5 ore" },
+        { label: "Trasferta a GG 1565", value: "1 giorno" },
+    ]);
     return (
         <Dialog
             open={open}
@@ -404,33 +496,86 @@ const TimbroDialog = (props) => {
             keepMounted
             onClose={handleClose}
             aria-describedby="alert-dialog-slide-description"
+            PaperProps={{ sx: { position: "fixed", top: 10, left: "20%", m: 0 } }}
         >
-            <DialogTitle>Modifica Timbro</DialogTitle>
+            <DialogTitle>Totali</DialogTitle>
             <DialogContent>
-                <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>/// Entrata ///</Divider>
-                <Grid container>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Entrata" defaultValue="" value={obj.inside ? obj.inside : ""} />
-                    </Grid>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Causale"></TextField>
-                    </Grid>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Terminale"></TextField>
-                    </Grid>
-                </Grid>
-                <Divider style={{ margin: "10px 0px", fontSize: "14px", textTransform: "uppercase" }}>\\\ Uscita \\\</Divider>
-                <Grid container>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Uscita" defaultValue="" value={obj.outside ? obj.outside : ""} />
-                    </Grid>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Causale"></TextField>
-                    </Grid>
-                    <Grid item xs={12} md={4} style={{ padding: "5px" }}>
-                        <TextField label="Terminale"></TextField>
-                    </Grid>
-                </Grid>
+                {
+                    totals.length > 0 ? totals.map((obj, index) => {
+                        return (
+                            <div>
+                                <Grid container key={index} style={{ minWidth: "350px", borderRadius: "10px", margin: "10px 0px", padding: "5px", color: "black" }}>
+                                    <Grid xs={6}>
+                                        <span style={{ fontWeight: "bold", }}>{obj.label} </span>
+                                    </Grid>
+                                    <Grid xs={6}>
+                                        <span style={{ fontWeight: "bold", color: "#073178", float: "right" }}>{obj.value}</span>
+                                    </Grid>
+
+                                </Grid>
+                                <Divider></Divider>
+                            </div>
+                        )
+                    }) : <span style={{ color: "#cccccc", fontSize: "18px", fontWeight: "bold" }}>Nessun Totale Trovato</span>
+                }
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Chiudi</Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
+
+
+const CausalDialog = (props) => {
+
+    const { obj, handleClose, handleSave, open } = props;
+    const [causals, setCausals] = useState([{ causal: "004", q: "0,30" }, { causal: "005", q: "0,30" }]);
+
+    const onChange = (name, value, index) => {
+        let fakeArray = [...causals];
+        fakeArray[index] = { ...fakeArray[index], [name]: value };
+        setCausals(fakeArray);
+
+    }
+
+    const onDelete = (obj) => {
+        let fakeArray = causals.filter(x => x != obj);
+        setCausals(fakeArray);
+    }
+
+    return (
+        <Dialog
+            open={open}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={handleClose}
+            aria-describedby="alert-dialog-slide-description"
+            PaperProps={{ sx: { position: "fixed", top: 10, left: "20%", m: 0 } }}
+        >
+            <DialogTitle>Causali</DialogTitle>
+            <DialogContent>
+                {causals.length > 0 ? causals.map((obj, index) => {
+                    return (
+                        <Grid key={index} container>
+                            <Grid item xs={5} style={{ padding: "5px" }}>
+                                <TextField name="causal" fullWidth label="Causale" value={obj.causal ? obj.causal : ""} onChange={(e) => { onChange(e.target.name, e.target.value, index) }} />
+                            </Grid>
+                            <Grid item xs={5} style={{ padding: "5px" }}>
+                                <TextField name="q" fullWidth label="Quantità" value={obj.q ? obj.q : ""} onChange={(e) => { onChange(e.target.name, e.target.value, index) }}></TextField>
+                            </Grid>
+                            <Grid item xs={2} style={{ padding: "5px" }}>
+                                <IconButton style={{ margin: "8px" }} onClick={() => { onDelete(obj) }}><ClearIcon /></IconButton>
+                            </Grid>
+                        </Grid>)
+
+                }) : <h2 style={{ color: "#cccccc", fontSize: "18px", textTransform: "uppercase" }}>Nessuna Causale Presente</h2>}
+
+
+                <div style={{ width: "100%", margin: "0 auto", textAlign: "center" }}>
+                    <Button variant="contained" style={{ margin: "0 auto", marginTop: "20px", width: "200px" }} onClick={() => { setCausals(curr => [...curr, { causal: "", q: "" }]) }}>Aggiungi Causale</Button>
+                </div>
+
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Salva</Button>
@@ -460,11 +605,11 @@ const CodeOrDescription = ({ show, callbackFunction }) => {
 const Timbratura = (props) => {
     const { inside, outside, color, style, className, onClick } = props;
     return (
-        <Grid onClick={onClick} className={className} container style={{ ...style, padding: "10px", boxShadow: "0px 0px 5px rgba(0,0,0,0.2)", marginBottom: "10px", borderRadius: "10px", backgroundColor: color ? color : "#3d046e", textAlign: "center" }}>
-            <Grid item xs={12} md={6} style={{ display: "flex", flex: "start", alignItems: "center", color: "white", padding: "0px 10px", fontSize: "22px", textAlign: "center" }}>
+        <Grid onClick={onClick} className={className} container style={{ padding: "10px", boxShadow: "0px 0px 5px rgba(0,0,0,0.2)", marginBottom: "10px", borderRadius: "10px", backgroundColor: color ? color : "#3d046e", textAlign: "center", color: "white", ...style }}>
+            <Grid item xs={12} md={6} style={{ display: "flex", flex: "start", alignItems: "center", padding: "0px 10px", fontSize: "22px", textAlign: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", textAlign: "center", margin: "0 auto" }}><LoginIcon style={{ color: "#0ceba4", width: "35px", height: "35px" }} /><span style={{ padding: "10px", fontWeight: "bold" }}>{inside}</span></div>
             </Grid>
-            <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", color: "white", padding: "0px 10px", fontSize: "22px" }}>
+            <Grid item xs={12} md={6} style={{ display: "flex", alignItems: "center", padding: "0px 10px", fontSize: "22px" }}>
                 <div style={{ display: "flex", alignItems: "center", textAlign: "center", margin: "0 auto" }}><LogoutIcon style={{ color: "#f74d94", width: "35px", height: "35px" }} /><span style={{ padding: "10px", fontWeight: "bold" }}>{outside}</span></div>
             </Grid>
         </Grid>
