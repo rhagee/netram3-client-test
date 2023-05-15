@@ -16,18 +16,18 @@ function renderRow(props) {
     const { data, index, style } = props;
     const { list, setCurr, tar, setContent } = data;
     const obj = list[index];
-    const divideArray = (array, chunkSize) => {
-        const result = [];
-        const length = array.length;
-        for (let i = 0; i < length; i += chunkSize) {
-            result.push(array.slice(i, i + chunkSize));
-        }
-        return result;
-    }
+    let currentTar = { ...tar };
+    let usedValues = [];
+    let unusedValues = [];
     const setElement = () => {
-        let currentTar = { ...tar };
-        let usedValues = [];
-        let unusedValues = [];
+        const divideArray = (array, chunkSize) => {
+            const result = [];
+            const length = array.length;
+            for (let i = 0; i < length; i += chunkSize) {
+                result.push(array.slice(i, i + chunkSize));
+            }
+            return result;
+        }
         currentTar["AX002"].value = obj["AX002"];//cod. identificativo
         currentTar["AX003"].value = obj["AX003"] == 0 ? '' : obj["AX003"];//colonna inizio
         currentTar["AX004"].value = obj["AX004"] == 0 ? '' : obj["AX004"];//lunghezza fisica
@@ -56,14 +56,7 @@ function renderRow(props) {
         currentTar["AX062"].value = obj["AX062"];//colonne a video
         currentTar["AX063"].value = obj["AX063"] === 'x' ? 'NO' : 'SI';//segmento chiave
 
-        Object.keys(currentTar).forEach(key => {
-            console.log(currentTar[key])
-            if (currentTar[key].value && currentTar[key].value !== 'NO')
-                usedValues.push(key)
-            else
-                unusedValues.push(key)
-        })
-
+        Object.keys(currentTar).forEach(key => currentTar[key].value && currentTar[key].value !== 'NO' ? usedValues.push(key) : unusedValues.push(key))
         setContent([divideArray(usedValues, 3), divideArray(unusedValues, 3)])
         setCurr(currentTar);
     }

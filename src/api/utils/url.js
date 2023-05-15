@@ -9,4 +9,6 @@ const server = "http://localhost:5001";
 
 /*TAR*/
 export const RequestTar = server + "/Server/Tar/GetTar";
+export const RequestTad = server + "/Server/Tad/GetTad";
+
 

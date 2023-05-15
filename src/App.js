@@ -3,6 +3,7 @@ import './App.css';
 import { RamIndexLayout } from "@ram-sc/ram-components-package";
 import Adrg from "./pages/Adrg";
 import Tar from './pages/Tar';
+import Tad from './pages/Tad';
 
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
             [
               { id: 19, name: "Rilevazione Presenze", icon: <></>, path: "/riple", permission: 2, component: <Adrg /> },
               { id: 20, name: "Tar", icon: <></>, path: "/tar", permission: 2, component: <Tar /> },
-              { id: 56, name: "Cosa 3", icon: <></>, path: "ListTest", permission: 2, component: <></> },
+              { id: 56, name: "Tad", icon: <></>, path: "/tad", permission: 2, component: <Tad /> },
             ],
         },
       ],

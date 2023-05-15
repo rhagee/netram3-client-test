@@ -84,3 +84,22 @@ export const Request_Tar = (tar, CallBackFunction) => {
 
     ServerRequest(URL.RequestTar, { tar: tar }, onDone);
 }
+
+export const Request_Tad = (tad, group, company, CallBackFunction) => {
+    const onDone = (res, error) => {
+        if (!error) {
+            if (!res.isError) {
+                CallBackFunction(CreateResponse(res.payload, res.error));
+            }
+            else {
+                CallBackFunction(CreateResponse(undefined, { ...res.error, value: true }));
+            }
+        }
+        else {
+            CallBackFunction(CreateResponse(undefined, { value: true, description: serverErrorDescription, code: serverErrorCode }));
+        }
+
+    }
+
+    ServerRequest(URL.RequestTad, { tad: tad, group: group, company: company }, onDone);
+}
